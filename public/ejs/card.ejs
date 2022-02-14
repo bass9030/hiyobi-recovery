@@ -1,0 +1,49 @@
+<a href="<%=href%>" class="acard" target="_blank" class='nohightlight' id="<%=id%>">
+    <div class="card">
+        <div class="thumbnail">
+            <img src="<%=thumbnail%>" alt="thumbnail"/>
+            <div class="page"><%=page%>P</div>
+        </div>    
+        <h3 class="title"><%=title%></h3>
+        <table>
+            <tbody>
+                <% if(artists != '') { %>
+                    <!--artist-->
+                    <tr>
+                        <td>작가 : </td>
+                        <td><%-artists%></td>
+                    </tr>
+                <% } %>
+
+                <% if(type != '') { %>
+                    <!--type-->
+                    <tr>
+                        <td>종류 : </td>
+                        <td><%-type%></td>
+                    </tr>
+                <% } %>
+
+                <% if(characters != '') { %>
+                    <!--characters-->
+                    <tr>
+                        <td>캐릭 : </td>
+                        <td><%-characters%></td>
+                    </tr>
+                <% } %>
+
+                <% if(original != '' || original != 'original') { %>
+                    <!--series-->
+                    <tr>
+                        <td>원작 : </td>
+                        <td><%-original%></td>
+                    </tr>
+                <% } %>
+                <tr>
+                    <td>태그 : </td>
+                    <td><%-tags%></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!--개힘들다-->
+</a>

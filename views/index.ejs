@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <%- include('header') %>
+    <script src="/javascripts/ejs.min.js"></script>
+  </head>
+  <body>
+    <script src="/javascripts/index.js"></script>
+    <script>renderPage(<%=page%>);</script>
+    <%- include('nav') %>
+    <div id='content'></div>
+  </body>
+</html>

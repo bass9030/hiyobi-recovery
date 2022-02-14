@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <%- include('header') %>
+    <link rel="stylesheet" href="/stylesheets/search.css">
+    <title>검색 | Re:hiyobi</title>
+</head>
+<body>
+    <%- include('nav') %>
+    <div id="searchbox">
+        <div id="textbox">
+            <input type="text" id="query">
+            <ul id="tags"></ul>
+        </div>
+        <input type="button" id="sumbit" value="검색">
+    </div>
+    <div id="searchresult">
+    </div>
+    <script src="/javascripts/search.js"></script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+#query {
+    font-family: 'Nanum Gothic', sans-serif;
+    display: block;
+    border: none;
+    width: 100%;
+    box-sizing: border-box;
+    height: 20px;
+    padding-left: 5px; 
+}
+
+#tags {
+    display: inline-block;
+    margin-top: -50px;
+    text-decoration: none;
+}
+
+#tags > li {
+    display: inline-block;
+}
+
+#textbox {
+    margin-top: 15px;
+    height: 20px;
+    border: gray solid 1px;
+}
+
+.tag {
+    background-color: gray;
+    border-radius: 5px;
+    height: 20px;
+    line-height: 20px;
+    padding-left: 6px;
+    padding-right: 6px;
+    margin: 2px;
+    width: auto;
+    vertical-align: middle;
+    display:inline-block;
+    color: whitesmoke;
+}
+
+.tag:first-child {
+    margin-left: 0;
+}
+
+.tag[gender='male'] {
+    background-color: rgb(65, 149, 244);
+}
+
+.tag[gender='female'] {
+    background-color: rgb(255, 94, 94);
+}
+
+#sumbit {
+    font-family: 'Nanum Gothic', sans-serif;
+    display: inline-block;
+    margin: 0 auto;
+    text-align: center;
+    margin-top: 15px;
+    /*height: auto;*/
+    vertical-align: middle;
+    width: 5%;
+    height: 25px;
+    background-color: gray;
+    color: white;
+    border: gray solid 1px;
+    border-radius: 5px;
+}
+
+#searchbox {
+    display: block;
+    margin: 0 auto;
+    width: 90%;
+}

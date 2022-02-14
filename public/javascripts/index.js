@@ -1,0 +1,55 @@
+const safemode = true;
+
+async function renderPage(page = 1) {
+    const card = await $.get('/ejs/card.ejs', {
+        Headers: [
+            
+        ]
+    });
+
+    $.get('/api/recent', { page: page }).then((result) => {
+        result.result.forEach(e => {
+            $.get('/api/galleryinfo', { id: e }).then((gallinfo) => {
+                const f = ejs.render(card, {
+                    id: e,
+                    title: gallinfo.title.display,
+                    type: returnPlaneText('type', gallinfo.type),
+                    artists: gallinfo.artists.map(f => returnPlaneText('artist', f)).join('\n'),
+                    original: gallinfo.series.map(f => returnPlaneText('series', f)).join('\n'),
+                    characters: gallinfo.characters.map(f => returnPlaneText('character', f)).join('\n'),
+                    tags: gallinfo.tags.map(f => returnTag(f.type, f.name)).join('\n'),
+                    page: gallinfo.files.length,
+                    href: `/reader/${e}`,
+                    thumbnail: '#',
+                })
+                console.log(f);
+                //console.log($('div#content').html());
+                $('#content').append(f + '\n');
+                $('div#content > a.acard').sort(function (a, b) {
+                    return parseInt(a.id) > parseInt(b.id);
+                }).each(function () {
+                    var elem = $(this);
+                    elem.remove();
+                    $(elem).appendTo("#content");
+                });
+            });
+        });
+    });
+}
+
+function returnPlaneText(type, name) {
+    return `<a href="/search?q=${type}:${name}">${name}</a>`
+}
+
+function returnTag(type, name) {
+    switch(type) {
+        case 'female':
+            return `<a class="tag" gender="female" href="/search?q=female:${name}">${name}</a>`
+        
+        case 'male': 
+            return `<a class="tag" gender="male" href="/search?q=male:${name}">${name}</a>`
+
+        default: 
+            return `<a class="tag" gender="other" href="/search?q=${type}:${name}">${name}</a>`
+    }
+}

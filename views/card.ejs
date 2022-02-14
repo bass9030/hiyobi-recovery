@@ -1,0 +1,32 @@
+<a class="card">
+    <div class="thumbnail">
+        <img src="<%=thumbnail%>" class="thumbnail">
+        <div class="page"><%=page%>P</div>
+    </div>    
+    <h3 class="title"><%=title%></h3>
+    <table>
+        <tbody>
+            <tr>
+                <td>작가 : </td>
+                <td><%-artists%>(<%-groups%>)</td>
+            </tr>
+            <tr>
+                <td>캐릭 : </td>
+                <td><%-characters%></td>
+            </tr>
+            <tr>
+                <td>원작 : </td>
+                <td><%-original%></td>
+            </tr>
+            <tr>
+                <td>종류 : </td>
+                <td><a href="/search?query=type:<%=type%>"><%=type%></a></td>
+            </tr>
+            <tr>
+                <td>태그 : </td>
+                <td><%-tags%></td>
+            </tr>
+        </tbody>
+    </table>
+</a>
+<!--개힘들다-->

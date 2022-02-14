@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <%- include('header') %>
+    <link rel="stylesheet" href="/stylesheets/reader.css"/>
+    <title><%= galinfo.title %> | RE:hiyobi</title>
+    <script src="/javascripts/reader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <meta name="referrer" content="no-referrer" />
+</head>
+<body>
+    <%- include('readernav') %>
+    <div id="imgs">
+    </div>
+    <script>window.onload = () => loadimgs(<%- JSON.stringify(galinfo) %>, <%=galid%>);</script>
+</body>
+</html>
