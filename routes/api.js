@@ -14,8 +14,8 @@ rotuer.get('/recent', (req, res, next) => {
 
     hitomi.getIds({
         range: {
-            startIndex: (page - 1) * 20,
-            endIndex: (page - 1) * 20 + 19
+            startIndex: (page - 1) * 25,
+            endIndex: (page - 1) * 25 + 24
         }
     }).then((result) => {
         result = result.sort((a, b) => b - a);
@@ -110,8 +110,8 @@ rotuer.get('/search', async (req, res, next) => {
     hitomi.getIds({
         tags: tags,
         range: {
-            startIndex: (page - 1) * 20,
-            endIndex: (page - 1) * 20 + 19
+            startIndex: (page - 1) * 25,
+            endIndex: (page - 1) * 25 + 24
         }
     }).then(e => {
         res.json(e);
