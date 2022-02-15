@@ -6,15 +6,13 @@ var rotuer = express.Router();
 const hitomi = require('node-hitomi').default;
 const db = require('better-sqlite3')('./tag.db', {verbose: console.log});
 
+const splitRex = /(artist|female|male|character|group|series|type|tag|남|여|여성|남성):/g;
+
 rotuer.get('/recent', (req, res, next) => {
     let page = req.query.page;
     if(!page) page = 1;
 
     hitomi.getIds({
-        tags: {
-            type:'language',
-            name: 'korean'
-        },
         range: {
             startIndex: (page - 1) * 20,
             endIndex: (page - 1) * 20 + 19
@@ -35,21 +33,6 @@ rotuer.get('/recent', (req, res, next) => {
             });
         }
     })
-    /*get_galleryids_for_recent(page).then(result => {
-        if(result) {
-            res.status(200);
-            res.send({
-                status: res.statusCode,
-                result: result
-            });
-        }else{
-            res.status(500);
-            res.send({
-                status: res.statusCode,
-                result: '최근 작품을 가져올 수 없습니다.'
-            });
-        }
-    });*/
 });
 
 rotuer.get('/popular', (req, res, next) => {
@@ -58,26 +41,81 @@ rotuer.get('/popular', (req, res, next) => {
     get_galleryids_for_popular(page).then(result => res.send(result));
 })
 
+function parseTag(tags) {
+    tags = tags.split('|');
+    let result = [];
+    for(let i in tags) {
+        //if(!(Object.keys(tags[i]).includes('type') && Object.keys().includes('name'))) continue;
+        let tagJSON = {};
+        const type = tags[i];
+        const name = tags[i].split(splitRex)[2];
+        switch(type.split(':')[0]) {
+            case 'female':
+            case '여':
+                tagJSON.type = 'female'
+                break;
+            case 'male':
+            case '남':
+                tagJSON.type = 'male'
+                break;
+
+            default:
+                tagJSON.type = tags[i].split(':')[0];
+                break
+        }
+        tagJSON.name = name;
+        tagJSON = convertOriginalTag(tagJSON);
+        result.push(tagJSON);
+    }
+
+    return result;
+}
+/**
+ * return korean tag to english tag
+ * @param {hitomi.Tag} tag 
+ * @param {hitomi.Tag} Converted tag
+ */
+function convertOriginalTag(tag) {
+    let type;
+    switch(tag.type) {
+        case '여':
+        case '여성':
+            type = 'female'
+            break;
+        case '남':
+        case '남성': 
+            type = 'male'
+            break;
+        default:
+            type = tag.type
+            break;
+    }
+    const result = db.prepare(`SELECT * FROM tags WHERE ${type} = 1 AND korean = ?;`).get(tag.name);
+    return {
+        type: type,
+        name: result.english.replace(/[-._!"`'#%&,:;<>=@{}~\$\(\)\*\+\/\\\?\[\]\^\|]+/g, '-').replace(/ /g, `_`)
+    }
+}
+
 rotuer.get('/search', async (req, res, next) => {
     let page = req.query.page;
-    if(req.query.query == undefined){
+    if(req.query.q == undefined){
         res.status(404);
         res.send([]);
         return;
     }
     if (!page) page = 1;
-    get_galleryids_for_querys(req.query.query.replace(/ /g, '_').replace(/\|/g, ' ')).then((result) => {
-        if (result.length == 0) res.status(404);
-        else res.status(200);
-        let cuttingResult = [];
-        for(let i = ((page <= 1) ? 0 : 15 * (page - 1)); i < ((page <= 1) ? 15 : 15 * page); i++) cuttingResult.push(result[i]);
-        cuttingResult = cuttingResult.filter(e => { return e != null; });
-        res.send(cuttingResult);
-    }).catch(() => {
-        res.status(404);
-        res.send([]);
-        return;
-    });
+    const tags = parseTag(req.query.q);
+    console.log(tags);
+    hitomi.getIds({
+        tags: tags,
+        range: {
+            startIndex: (page - 1) * 20,
+            endIndex: (page - 1) * 20 + 19
+        }
+    }).then(e => {
+        res.json(e);
+    })
 });
 
 rotuer.get('/galleryinfo', (req, res, next) => {
@@ -120,7 +158,14 @@ rotuer.get('/galleryinfo', (req, res, next) => {
         result.tags.forEach(e => {
             let translate = db.prepare(`SELECT * FROM tags WHERE ${e.type} = 1 AND english = ?;`).get(e.name)
             //console.log(translate)
-            if(translate) if(translate.korean) result.tags[i].name = translate.korean;
+            if(translate) {
+                if(translate.male) {
+                    result.tags[i].type = '남';
+                }else if(translate.female) {
+                    result.tags[i].type = '여';
+                }
+                if(translate.korean) result.tags[i].name = translate.korean;
+            }
             i++;
         })
 

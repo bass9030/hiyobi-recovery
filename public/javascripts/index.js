@@ -20,6 +20,7 @@ async function renderPage(page = 1) {
                     tags: gallinfo.tags.map(f => returnTag(f.type, f.name)).join('\n'),
                     page: gallinfo.files.length,
                     href: `/reader/${e}`,
+                    language: `<a href="/search?q=language:${gallinfo.languageName.english}">${gallinfo.languageName.local}</a>`,
                     thumbnail: '#',
                 })
                 console.log(f);
@@ -44,10 +45,12 @@ function returnPlaneText(type, name) {
 function returnTag(type, name) {
     switch(type) {
         case 'female':
-            return `<a class="tag" gender="female" href="/search?q=female:${name}">${name}</a>`
+        case '여':
+            return `<a class="tag" gender="female" href="/search?q=여:${name}">${name}</a>`
         
-        case 'male': 
-            return `<a class="tag" gender="male" href="/search?q=male:${name}">${name}</a>`
+        case 'male':
+        case '남': 
+            return `<a class="tag" gender="male" href="/search?q=남:${name}">${name}</a>`
 
         default: 
             return `<a class="tag" gender="other" href="/search?q=${type}:${name}">${name}</a>`
