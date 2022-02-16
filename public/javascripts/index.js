@@ -1,11 +1,7 @@
 const safemode = true;
 
 async function renderPage(page = 1) {
-    const card = await $.get('/ejs/card.ejs', {
-        Headers: [
-            
-        ]
-    });
+    const card = await $.get('/ejs/card.ejs');
 
     $.get('/api/recent', { page: page }).then((result) => {
         result.result.forEach(e => {
@@ -23,7 +19,7 @@ async function renderPage(page = 1) {
                     language: `<a href="/search?q=language:${gallinfo.languageName.english}">${gallinfo.languageName.local}</a>`,
                     thumbnail: '#',
                 })
-                console.log(f);
+                console.log(e, gallinfo.series.map(f => returnPlaneText('series', f)).join('\n'));
                 //console.log($('div#content').html());
                 $('#content').append(f + '\n');
                 $('div#content > a.acard').sort(function (a, b) {

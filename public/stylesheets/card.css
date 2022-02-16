@@ -13,6 +13,14 @@
     width: 45px;
 }
 
+.card > table> tbody> tr > td > a:hover:not(.nohightlight):not(.tag) {
+    -moz-transition: all .1s ease-in;
+    -o-transition: all .1s ease-in;
+    -webkit-transition: all .1s ease-in;
+    transition: all .1s ease-in;
+    color: #007bff;
+}
+
 .card {
     margin: 0 auto;
     cursor: pointer;
@@ -20,6 +28,7 @@
     padding: 20px;
     box-sizing: border-box;
     height: auto;
+    color: black;
     border: 1px black solid;
     border-radius: 5px;
 }
@@ -43,8 +52,8 @@
     line-height: 23px;
     padding-left: 6px;
     padding-right: 6px;
-    margin-right: 2px;
-    margin-bottom: 5px;
+    margin: 2px;
+    margin-left: 0;
     width: auto;
     vertical-align: middle;
     display:inline-block;
