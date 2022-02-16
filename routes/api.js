@@ -174,13 +174,22 @@ rotuer.get('/galleryinfo', (req, res, next) => {
 })
 
 rotuer.get('/getimage', (req,res,next) => {
-    axios.get(req.query.url, {
+    const image = JSON.parse(req.query.image)
+    const isThumb = (req.query.isThumb == 'true');
+    const ext = (((image.hasAvif) ? 'avif' : ((image.hasWebp) ? 'webp' : image.extension)));
+    console.log(image)
+    const url = hitomi.getImageUrl(image, ext, {isThumbnail: isThumb})
+    console.log(url);
+    axios.get(url, {
         responseType: 'arraybuffer',
         headers: {
-            'Referer': "https://hitomi.la/reader/" + req.query.galid + ".html"
+            'Referer': "https://hitomi.la/1434389.html"
         }
     }).then(response => {
-        res.send(Buffer.from(response.data, 'binary').toString('base64'));
+        res.send(Buffer.from(response.data, 'binary'));
+    }).catch(e => {
+        console.log(e.response.status, e.response.statusText);
+        res.send(e.response.status);
     })
 })
 
