@@ -9,8 +9,10 @@
     <%- include('nav') %>
     <div id="searchbox">
         <div id="textbox">
-            <input type="text" id="query">
-            <ul id="tags"></ul>
+            <div id="tags"></div>
+            <input type="text" id="query" autocomplete="off" list="autocomplete">
+            <datalist id="autocomplete">
+            </datalist>
         </div>
         <input type="button" id="sumbit" value="검색">
     </div>

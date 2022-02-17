@@ -1,70 +1,24 @@
 //const { default: axios } = require('axios');
 
-const loadimgs = (galinfo, galid) => {
+const loadimgs = (galinfo) => {
     //console.log(galinfo);
     let a = 0;
-    galinfo.images.forEach(e => {
-        console.log(e);
+    galinfo.forEach(e => {
         $('div#imgs').append("<img id=\"" + a + "\" class=\"loading\" src=\"/images/loading.gif\">");
-        makeRequest(e, galid, a);
+        makeRequest(e, a);
         a++;
     })
 }
 
-const makeRequest = function(url, galid, imgNumber) {
+const makeRequest = function(imgInfo, imgNumber) {
     //tlqkf 내서버..
-    var request = new XMLHttpRequest();
-    request.open('GET', `/api/getimage?url=${url}&galid=${galid}`);
-    request.responseType = "text";
-    request.onload = function() {
-        var base64 = request.response;
-        if (base64) {
-            var mimetype="image/" + url.split('.')[1];
-            $("#" + imgNumber).attr('src', "data:"+mimetype+";base64,"+base64);
-            $("#" + imgNumber).attr('class', '');
-        }
-    };
-    request.send();
-    /*var xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
-    xhr.responseType = 'arraybuffer';
-    xhr.onload = function () {
-        var arraybuffer = xhr.response;
-        if(arraybuffer) {
-            var u8 = new Uint8Array(arrayBuffer);
-            var b64encoded = btoa(String.fromCharCode.apply(null, u8));
-            var mimetype="image/" + url.split('.')[1]; // or whatever your image mime type is
-            $("#" + imgNumber).attr('src', "data:"+mimetype+";base64,"+b64encoded);
-            $("#" + imgNumber).attr('class', '');
-        }
-    }
-    xhr.send();*/
-    /*fetch(url, {
-        headers: {
-            'Referer': "https://hitomi.la/reader/" + galid + ".html",
-            'Origin': "https://hitomi.la/reader/" + galid + ".html"
-        }
-    }).then((response) => {
-        if (response.ok) {
-            response.arrayBuffer().then((arraybuffer) => {
-                var u8 = new Uint8Array(arraybuffer);
-                var b64encoded = btoa(String.fromCharCode.apply(null, u8));
-                var mimetype="image/" + url.split('.')[1]; // or whatever your image mime type is
-                $("#" + imgNumber).attr('src', "data:"+mimetype+";base64,"+b64encoded);
-                $("#" + imgNumber).attr('class', '');
-            });
-        }
-    })*/
-    /*axios.get(url, {
-        responseType: 'arraybuffer',
-        headers: {
-            'Referer': "https://hitomi.la/reader/" + galid + ".html"
-        }
-    }).then(response => {
-        var u8 = new Uint8Array(response.data);
-        var b64encoded = btoa(String.fromCharCode.apply(null, u8));
-        var mimetype="image/" + url.split('.')[1]; // or whatever your image mime type is
-        $("#" + imgNumber).attr('src', "data:"+mimetype+";base64,"+b64encoded);
+    const ext = (((imgInfo.hasAvif) ? 'avif' : ((imgInfo.hasWebp) ? 'webp' : imgInfo.extension)));
+    $.get('/api/getimage', { image: JSON.stringify(imgInfo), isThumb: false }).then((result) => {
+        const blob = new Blob(result, { type: 'image/' + ext });
+        const url = URL.createObjectURL(blob);
+        $("#" + imgNumber).attr('src', url);
         $("#" + imgNumber).attr('class', '');
-    })*/
+    }).catch(() => {
+        alert(`${imgNumber + 1}번째 이미지 다운로드에 실패했습니다.`);
+    })
 };

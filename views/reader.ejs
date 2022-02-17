@@ -3,7 +3,7 @@
 <head>
     <%- include('header') %>
     <link rel="stylesheet" href="/stylesheets/reader.css"/>
-    <title><%= galinfo.title %> | RE:hiyobi</title>
+    <title><%= galinfo.title.display %> | RE:hiyobi</title>
     <script src="/javascripts/reader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <meta name="referrer" content="no-referrer" />
@@ -12,6 +12,6 @@
     <%- include('readernav') %>
     <div id="imgs">
     </div>
-    <script>window.onload = () => loadimgs(<%- JSON.stringify(galinfo) %>, <%=galid%>);</script>
+    <script>window.onload = () => loadimgs(<%- JSON.stringify(galinfo.files) %>);</script>
 </body>
 </html>

@@ -27,34 +27,6 @@ app.use('/reader', readerRouter)
 app.use('/search', searchRouter)
 app.use('/api', apiRouter)
 
-app.get('/test', (req, res) => {
-    hitomi.get_galleryInfo_for_galleryid(1800988, true).then(result => {
-        res.render('card', {
-            thumbnail: result.thumbnail,
-            title: result.title,
-            type: result.type,
-            characters: result.characters.map(e => {
-                return '<a class="other-tag" href="/search?query=character:' + e + '">' + e + '</a>'
-            }).join(''),
-            page: result.images.length,
-            artists: result.artists.map(e => {
-                return '<a class="other-tag" href="/search?query=artist:' + e + '">' + e + '</a>'
-            }).join(''),
-            groups: result.groups.map(e => {
-                return '<a class="other-tag" href="/search?query=group:' + e + '">' + e + '</a>'
-            }).join(''),
-            original: result.series.map(e => {
-                return '<a class="other-tag" href="/search?query=series:' + e + '">' + e + '</a>'
-            }).join(''),
-	    	tags: result.tags.map(e => {
-				if(e.female) return '<a class="tag" gender="female" href="/search?query=female:' + e.tag+'">female:' + e.tag + '</a>';
-				else if(e.male) return '<a class="tag" gender="male" href="/search?query=male:' + e.tag+'">male:' + e.tag + '</a>';
-				else return '<a class="tag" href="/search?query=tag:' + e.tag + '">tag:' + e.tag + '</a>';
-        	}).join('')
-        });
-    });
-})
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

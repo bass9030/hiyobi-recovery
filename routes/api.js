@@ -6,7 +6,7 @@ var rotuer = express.Router();
 const hitomi = require('node-hitomi').default;
 const db = require('better-sqlite3')('./tag.db', {verbose: console.log});
 
-const splitRex = /(artist|female|male|character|group|series|type|tag|남|여|여성|남성):/g;
+const splitRex = /(artist|작가|female|male|character|캐릭|group|그룹|series|원작|type|종류|tag|태그|남|여|여성|남성):/g;
 
 rotuer.get('/recent', (req, res, next) => {
     let page = req.query.page;
@@ -47,23 +47,12 @@ function parseTag(tags) {
     for(let i in tags) {
         //if(!(Object.keys(tags[i]).includes('type') && Object.keys().includes('name'))) continue;
         let tagJSON = {};
-        const type = tags[i];
+        const type = tags[i].split(':')[0];
         const name = tags[i].split(splitRex)[2];
-        switch(type.split(':')[0]) {
-            case 'female':
-            case '여':
-                tagJSON.type = 'female'
-                break;
-            case 'male':
-            case '남':
-                tagJSON.type = 'male'
-                break;
-
-            default:
-                tagJSON.type = tags[i].split(':')[0];
-                break
-        }
+        const translateType = db.prepare('SELECT * FROM type WHERE korean = ?;').get(type);
+        tagJSON.type = (translateType.english ? translateType.english : type);
         tagJSON.name = name;
+        console.log(tagJSON)
         tagJSON = convertOriginalTag(tagJSON);
         result.push(tagJSON);
     }
@@ -73,26 +62,12 @@ function parseTag(tags) {
 /**
  * return korean tag to english tag
  * @param {hitomi.Tag} tag 
- * @param {hitomi.Tag} Converted tag
+ * @return {hitomi.Tag} Converted tag
  */
 function convertOriginalTag(tag) {
-    let type;
-    switch(tag.type) {
-        case '여':
-        case '여성':
-            type = 'female'
-            break;
-        case '남':
-        case '남성': 
-            type = 'male'
-            break;
-        default:
-            type = tag.type
-            break;
-    }
-    const result = db.prepare(`SELECT * FROM tags WHERE ${type} = 1 AND korean = ?;`).get(tag.name);
+    const result = db.prepare(`SELECT * FROM tags WHERE ${tag.type} = 1 AND korean = ?;`).get(tag.name);
     return {
-        type: type,
+        type: tag.type,
         name: result.english.replace(/[-._!"`'#%&,:;<>=@{}~\$\(\)\*\+\/\\\?\[\]\^\|]+/g, '-').replace(/ /g, `_`)
     }
 }
@@ -112,11 +87,96 @@ rotuer.get('/search', async (req, res, next) => {
         range: {
             startIndex: (page - 1) * 25,
             endIndex: (page - 1) * 25 + 24
-        }
+        },
+        reverseResult: true
     }).then(e => {
         res.json(e);
     })
 });
+
+rotuer.get('/test', (req, res) => {
+    hitomi.getGallery(1434389).then(result => {
+        console.log(result);
+        const image = result.files[0]
+        const isThumb = false; // same to false
+        const ext = (((image.hasAvif) ? 'avif' : ((image.hasWebp) ? 'webp' : image.extension)));
+        const url = hitomi.getImageUrl(image, ext, {isThumbnail: isThumb})
+        res.send(url); // it return wrong url
+    })
+})
+
+rotuer.get('/autocomplete', (req, res) => {
+    if(!req.query.q) req.query.q = '';
+    let result = [];
+    let type = '';
+    if(req.query.q.includes(':')) {
+        const translate = db.prepare('SELECT * FROM type WHERE korean = ? OR english = ?;').get(req.query.q.split(':')[0], req.query.q.split(':')[0]);
+        if(translate.english) {
+            type = `${translate.english} = 1 AND `;
+            req.query.q = req.query.q.split(splitRex)[2]
+        }
+    }
+    db.prepare(`SELECT * FROM tags WHERE ${type}(korean LIKE ? || '%' OR english LIKE ? || '%') LIMIT 50;`).all(req.query.q, req.query.q).forEach(row => {
+        if(row.artist) {
+            result.push('artist:' + row.english);
+            result.push('작가:' + row.english);
+            if(!row.korean) return;
+            result.push('artist:' + row.korean);
+            result.push('작가:' + row.korean);
+        }
+        if(row.group) {
+            result.push('그룹:' + row.english);
+            result.push('group:' + row.english);
+            if(!row.korean) return;
+            result.push('group:' + row.korean);
+            result.push('그룹:' + row.korean);
+        }
+        if(row.character) {
+            result.push('character:' + row.english);
+            result.push('캐릭:' + row.english);
+            if(!row.korean) return;
+            result.push('character:' + row.korean);
+            result.push('캐릭:' + row.korean);
+        }
+        if(row.series) {
+            if(row.english.toLocaleLowerCase() == 'original') return;
+            result.push('series:' + row.english);
+            result.push('원작:' + row.english);
+            if(!row.korean) return;
+            result.push('series:' + row.korean);
+            result.push('원작:' + row.korean);
+        }
+        if(row.tag) {
+            result.push('태그:' + row.english);
+            result.push('tag:' + row.english);
+            if(!row.korean) return;
+            result.push('tag:' + row.korean);
+            result.push('태그:' + row.korean);
+        }
+        if(row.type) {
+            result.push('종류:' + row.english);
+            result.push('type:' + row.english);
+            if(!row.korean) return;
+            result.push('type:' + row.korean);
+            result.push('종류:' + row.korean);
+        }
+        if(row.female) {
+            result.push('female:'+row.english);
+            result.push('여:'+row.english);
+            if(!row.korean) return;
+            result.push('female:'+row.korean);
+            result.push('여:'+row.korean);
+        }
+        if(row.male) {
+            result.push('male:'+row.english);
+            result.push('남:'+row.english);
+            if(!row.korean) return;
+            result.push('male:'+row.korean);
+            result.push('남:'+row.korean);
+        }
+    });
+    res.json(result);
+})
 
 rotuer.get('/galleryinfo', (req, res, next) => {
     let galleryid = parseInt(req.query.id);
@@ -177,15 +237,15 @@ rotuer.get('/getimage', (req,res,next) => {
     const image = JSON.parse(req.query.image)
     const isThumb = (req.query.isThumb == 'true');
     const ext = (((image.hasAvif) ? 'avif' : ((image.hasWebp) ? 'webp' : image.extension)));
-    console.log(image)
     const url = hitomi.getImageUrl(image, ext, {isThumbnail: isThumb})
     console.log(url);
     axios.get(url, {
         responseType: 'arraybuffer',
         headers: {
-            'Referer': "https://hitomi.la/1434389.html"
+            'Referer': "https://hitomi.la/"
         }
     }).then(response => {
+        res.header('Content-Type', 'image/' + ext);
         res.send(Buffer.from(response.data, 'binary'));
     }).catch(e => {
         console.log(e.response.status, e.response.statusText);

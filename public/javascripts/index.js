@@ -1,4 +1,4 @@
-const safemode = true;
+const safemode = false;
 
 async function renderPage(page = 1) {
     const card = await $.get('/ejs/card.ejs');
@@ -17,13 +17,14 @@ async function renderPage(page = 1) {
                     page: gallinfo.files.length,
                     href: `/reader/${e}`,
                     language: `<a href="/search?q=language:${gallinfo.languageName.english}">${gallinfo.languageName.local}</a>`,
-                    thumbnail: '#',
+                    thumbnail: (safemode ? '#': `/api/getimage?image=${JSON.stringify(gallinfo.files[0])}&isThumb=true`),
                 })
-                console.log(e, gallinfo.series.map(f => returnPlaneText('series', f)).join('\n'));
+                //console.log(e, gallinfo.series.map(f => returnPlaneText('series', f)).join('\n'));
                 //console.log($('div#content').html());
-                $('#content').append(f + '\n');
-                $('div#content > a.acard').sort(function (a, b) {
-                    return parseInt(a.id) > parseInt(b.id);
+                    $('#content').append(f + '\n');
+                $('div#content > a.acard').sort(function (b, a) {
+                    //console.log(a.id, b.id)
+                    return parseInt(a.id) - parseInt(b.id);
                 }).each(function () {
                     var elem = $(this);
                     elem.remove();
