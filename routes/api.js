@@ -236,12 +236,8 @@ rotuer.get('/galleryinfo', (req, res, next) => {
 rotuer.get('/getimage', (req,res,next) => {
     const image = JSON.parse(req.query.image)
     const isThumb = (req.query.isThumb == 'true');
-<<<<<<< HEAD
-    const ext = (((image.hasAvif) ? 'avif' : ((image.hasWebp) ? 'webp' : image.extension)));
-=======
     const ext = (isThumb ? (image.hasAvif ? 'avif' : image.extension) : (((image.hasAvif) ? 'avif' : ((image.hasWebp) ? 'webp' : image.extension))));
     console.log(image, ext)
->>>>>>> 6b64984e14454e3c2be95301f9a4625f607df225
     const url = hitomi.getImageUrl(image, ext, {isThumbnail: isThumb})
     console.log(url);
     axios.get(url, {
