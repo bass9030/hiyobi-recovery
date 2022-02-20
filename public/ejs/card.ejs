@@ -7,7 +7,7 @@
         <h3 class="title"><%=title%></h3>
         <table>
             <tbody>
-                <% if(artists != '') { %>
+                <% if(artists.length !== 0) { %>
                     <!--artist-->
                     <tr>
                         <td>작가 : </td>
@@ -15,7 +15,7 @@
                     </tr>
                 <% } %>
 
-                <% if(type != '') { %>
+                <% if(type.length !== 0) { %>
                     <!--type-->
                     <tr>
                         <td>종류 : </td>
@@ -23,7 +23,7 @@
                     </tr>
                 <% } %>
 
-                <% if(characters != '') { %>
+                <% if(characters.length !== 0) { %>
                     <!--characters-->
                     <tr>
                         <td>캐릭 : </td>
@@ -31,7 +31,7 @@
                     </tr>
                 <% } %>
 
-                <% if(original != '' || original != 'original') { %>
+                <% if(original.length !== 0) { %>
                     <!--series-->
                     <tr>
                         <td>원작 : </td>
@@ -39,7 +39,7 @@
                     </tr>
                 <% } %>
 
-                <% if(language != '') { %>
+                <% if(language.length !== 0) { %>
                     <!--characters-->
                     <tr>
                         <td>언어 : </td>

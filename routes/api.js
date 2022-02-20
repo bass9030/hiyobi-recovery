@@ -68,7 +68,7 @@ function convertOriginalTag(tag) {
     const result = db.prepare(`SELECT * FROM tags WHERE ${tag.type} = 1 AND korean = ?;`).get(tag.name);
     return {
         type: tag.type,
-        name: result.english.replace(/[-._!"`'#%&,:;<>=@{}~\$\(\)\*\+\/\\\?\[\]\^\|]+/g, '-').replace(/ /g, `_`)
+        name: (result ? result.english : tag.name).replace(/[-._!"`'#%&,:;<>=@{}~\$\(\)\*\+\/\\\?\[\]\^\|]+/g, '-').replace(/ /g, `_`)
     }
 }
 
@@ -116,7 +116,7 @@ rotuer.get('/autocomplete', (req, res) => {
             req.query.q = req.query.q.split(splitRex)[2]
         }
     }
-    db.prepare(`SELECT * FROM tags WHERE ${type}(korean LIKE ? || '%' OR english LIKE ? || '%') LIMIT 50;`).all(req.query.q, req.query.q).forEach(row => {
+    db.prepare(`SELECT * FROM tags WHERE ${type}(korean LIKE '%' || ? || '%' OR english LIKE '%' || ? || '%') LIMIT 25;`).all(req.query.q, req.query.q).forEach(row => {
         if(row.artist) {
             result.push('artist:' + row.english);
             result.push('작가:' + row.english);
@@ -187,14 +187,17 @@ rotuer.get('/galleryinfo', (req, res, next) => {
         result.artists.forEach(e => {
             let translate = db.prepare("SELECT * FROM tags WHERE artist = 1 AND english = ?;").get(e)
             //console.log(translate)
-            if(translate) if(translate.korean) result.artists[i] = translate.korean;
+            if(translate) {
+                if(translate.korean) result.artists[i] = translate.korean;
+            }else db.prepare("INSERT INTO tags (english, artist) VALUES (?, 1);").run(e);
             i++;
         })
 
         i = 0;
         result.groups.forEach(e => {
             let translate = db.prepare("SELECT * FROM tags WHERE 'group' = 1 AND english = ?;").get(e)
-            if(translate) if(translate.korean) result.groups[i] = translate.korean;
+            if(translate){ if(translate.korean) result.groups[i] = translate.korean;
+            }else db.prepare("INSERT INTO tags (english, \"group\") VALUES (?, 1);").run(e);
             i++;
         })
 
@@ -202,7 +205,8 @@ rotuer.get('/galleryinfo', (req, res, next) => {
         result.series.forEach(e => {
             let translate = db.prepare("SELECT * FROM tags WHERE series = 1 AND english = ?;").get(e)
             //console.log(translate)
-            if(translate) if(translate.korean) result.series[i] = translate.korean;
+            if(translate) {if(translate.korean) result.series[i] = translate.korean;
+            }else db.prepare("INSERT INTO tags (english, series) VALUES (?, 1);").run(e);
             i++;
         })
 
@@ -210,7 +214,8 @@ rotuer.get('/galleryinfo', (req, res, next) => {
         result.characters.forEach(e => {
             let translate = db.prepare("SELECT * FROM tags WHERE character = 1 AND english = ?;").get(e)
             //console.log(translate)
-            if(translate) if(translate.korean) result.characters[i] = translate.korean;
+            if(translate){ if(translate.korean) result.characters[i] = translate.korean;
+            }else db.prepare("INSERT INTO tags (english, character) VALUES (?, 1);").run(e);
             i++;
         })
 
@@ -225,7 +230,8 @@ rotuer.get('/galleryinfo', (req, res, next) => {
                     result.tags[i].type = '여';
                 }
                 if(translate.korean) result.tags[i].name = translate.korean;
-            }
+                
+            }else db.prepare(`INSERT INTO tags (english, ${e.type}) VALUES (?, 1);`).run(e.name);
             i++;
         })
 

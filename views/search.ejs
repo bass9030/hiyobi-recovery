@@ -4,6 +4,12 @@
     <%- include('header') %>
     <link rel="stylesheet" href="/stylesheets/search.css">
     <title>검색 | Re:hiyobi</title>
+    <script>
+        let card;
+        $.get('/ejs/card.ejs').done(e => {
+            card = e;
+        })
+    </script>
 </head>
 <body>
     <%- include('nav') %>
@@ -16,7 +22,7 @@
         </div>
         <input type="button" id="sumbit" value="검색">
     </div>
-    <div id="searchresult">
+    <div id="content">
     </div>
     <script src="/javascripts/search.js"></script>
 </body>

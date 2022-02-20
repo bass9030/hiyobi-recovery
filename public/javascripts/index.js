@@ -1,4 +1,4 @@
-const safemode = false;
+const safemode = true;
 
 async function renderPage(page = 1) {
     const card = await $.get('/ejs/card.ejs');
@@ -10,9 +10,9 @@ async function renderPage(page = 1) {
                     id: e,
                     title: gallinfo.title.display,
                     type: returnPlaneText('type', gallinfo.type),
-                    artists: gallinfo.artists.map(f => returnPlaneText('artist', f)).join('\n'),
-                    original: gallinfo.series.map(f => returnPlaneText('series', f)).join('\n'),
-                    characters: gallinfo.characters.map(f => returnPlaneText('character', f)).join('\n'),
+                    artists: gallinfo.artists.map(f => returnPlaneText('artist', f)).join('<span>, </span>'),
+                    original: gallinfo.series.map(f => returnPlaneText('series', f)).join('<span>, </span>'),
+                    characters: gallinfo.characters.map(f => returnPlaneText('character', f)).join('<span>, </span>'),
                     tags: gallinfo.tags.map(f => returnTag(f.type, f.name)).join('\n'),
                     page: gallinfo.files.length,
                     href: `/reader/${e}`,
@@ -21,7 +21,7 @@ async function renderPage(page = 1) {
                 })
                 //console.log(e, gallinfo.series.map(f => returnPlaneText('series', f)).join('\n'));
                 //console.log($('div#content').html());
-                    $('#content').append(f + '\n');
+                $('#content').append(f + '\n');
                 $('div#content > a.acard').sort(function (b, a) {
                     //console.log(a.id, b.id)
                     return parseInt(a.id) - parseInt(b.id);
@@ -36,6 +36,7 @@ async function renderPage(page = 1) {
 }
 
 function returnPlaneText(type, name) {
+    if(name == 'original') return;
     return `<a href="/search?q=${type}:${name}">${name}</a>`
 }
 
