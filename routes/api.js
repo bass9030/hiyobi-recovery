@@ -2,7 +2,6 @@ const { default: axios } = require('axios');
 var express = require('express');
 var createError = require('http-errors');
 var rotuer = express.Router();
-//var { get_galleryids_for_query, get_galleryids_for_querys, get_galleryids_for_recent, get_galleryids_for_popular, get_galleryInfo_for_galleryid } = require('../search');
 const hitomi = require('node-hitomi').default;
 const db = require('better-sqlite3')('./tag.db', {verbose: console.log});
 
@@ -94,19 +93,11 @@ rotuer.get('/search', async (req, res, next) => {
     })
 });
 
-rotuer.get('/test', (req, res) => {
-    hitomi.getGallery(1434389).then(result => {
-        console.log(result);
-        const image = result.files[0]
-        const isThumb = false; // same to false
-        const ext = (((image.hasAvif) ? 'avif' : ((image.hasWebp) ? 'webp' : image.extension)));
-        const url = hitomi.getImageUrl(image, ext, {isThumbnail: isThumb})
-        res.send(url); // it return wrong url
-    })
-})
-
 rotuer.get('/autocomplete', (req, res) => {
     if(!req.query.q) req.query.q = '';
+    if(req.query.q.trim().length == 0) {
+        res.json([]);
+    }
     let result = [];
     let type = '';
     if(req.query.q.includes(':')) {
