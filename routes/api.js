@@ -4,7 +4,9 @@ var createError = require('http-errors');
 var rotuer = express.Router();
 const hitomi = require('node-hitomi').default;
 const db = require('better-sqlite3')('./tag.db', {verbose: console.log});
-
+let ready = false;
+const ImageUrlResolver = new hitomi.ImageUrlResolver();
+ImageUrlResolver.synchronize().then(() => ready = true);
 const splitRex = /(artist|작가|female|male|character|캐릭|group|그룹|series|원작|type|종류|tag|태그|남|여|여성|남성):/g;
 
 rotuer.get('/recent', (req, res, next) => {
@@ -230,7 +232,8 @@ rotuer.get('/galleryinfo', (req, res, next) => {
     });
 })
 
-rotuer.get('/getimage', (req,res,next) => {
+rotuer.get('/getimage', async (req,res,next) => {
+    if(!ready) await ImageUrlResolver.synchronize();
     const image = JSON.parse(req.query.image)
     const isThumb = (req.query.isThumb == 'true');
     const ext = (isThumb ? (image.hasAvif ? 'avif' : image.extension) : (((image.hasAvif) ? 'avif' : ((image.hasWebp) ? 'webp' : image.extension))));
@@ -246,7 +249,6 @@ rotuer.get('/getimage', (req,res,next) => {
         res.header('Content-Type', 'image/' + ext);
         res.send(Buffer.from(response.data, 'binary'));
     }).catch(e => {
-        console.log(e.response.status, e.response.statusText);
         res.sendStatus(e.response.status);
     })
 })
