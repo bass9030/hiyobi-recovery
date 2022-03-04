@@ -1,3 +1,6 @@
 {
-    "ext": "ejs js"
+    "ext": "ejs js",
+    "ignore": [
+        "**/public/javascripts/*"
+    ]
 }
