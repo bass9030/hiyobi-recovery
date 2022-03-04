@@ -5,8 +5,8 @@ var rotuer = express.Router();
 const hitomi = require('node-hitomi').default;
 const db = require('better-sqlite3')('./tag.db', {verbose: console.log});
 let ready = false;
-const ImageUrlResolver = new hitomi.ImageUrlResolver();
-ImageUrlResolver.synchronize().then(() => ready = true);
+/*const ImageUrlResolver = new hitomi.ImageUrlResolver();
+ImageUrlResolver.synchronize().then(() => ready = true);*/
 const splitRex = /(artist|작가|female|male|character|캐릭|group|그룹|series|원작|type|종류|tag|태그|남|여|여성|남성):/g;
 
 rotuer.get('/recent', (req, res, next) => {
@@ -36,11 +36,11 @@ rotuer.get('/recent', (req, res, next) => {
     })
 });
 
-rotuer.get('/popular', (req, res, next) => {
-    let page = req.query.page; 
-    if(!page) page = 1;
-    get_galleryids_for_popular(page).then(result => res.send(result));
-})
+/**
+ * translate tag to korean tag
+ * @param {hitomi.Tag} tags
+ * @returns {hitomi.Tag} korean tag
+ */
 
 function parseTag(tags) {
     tags = tags.split('|');
@@ -67,6 +67,11 @@ function parseTag(tags) {
  */
 function convertOriginalTag(tag) {
     const result = db.prepare(`SELECT * FROM tags WHERE ${tag.type} = 1 AND korean = ?;`).get(tag.name);
+    if(!result) {
+        db.prepare(`INSERT INTO tags (korean, english, '${tag.type}') VALUES (NULL, ?, 1);`).run(tag.name);
+    }else if(!result.english) {
+        db.prepare(`INSERT INTO tags (korean, english, '${tag.type}') VALUES (NULL, ?, 1);`).run(tag.name);
+    }
     return {
         type: tag.type,
         name: (result ? result.english : tag.name).replace(/[-._!"`'#%&,:;<>=@{}~\$\(\)\*\+\/\\\?\[\]\^\|]+/g, '-').replace(/ /g, `_`)
