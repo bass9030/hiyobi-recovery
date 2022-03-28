@@ -78,7 +78,8 @@ $('#query').keyup((e) => {
     if(e.keyCode == 13) {
         if($('#query').val().length != 0) {
             const tag = $('#query').val();
-            $('#tags').append('<a class="tag" gender="' + ((tag.split(':')[0].includes('여') || tag.split(':')[0] == 'female') ? 'female' : ((tag.split(':')[0].includes('남') || tag.split(':')[0] == 'male') ? 'male' : 'other')) + '">' + $('#query').val() + '</a>');
+            //$('#tags').append('<a class="tag" gender="' + ((tag.split(':')[0].includes('여') || tag.split(':')[0] == 'female') ? 'female' : ((tag.split(':')[0].includes('남') || tag.split(':')[0] == 'male') ? 'male' : 'other')) + '">' + $('#query').val() + '</a>');
+            
             $('#query').val('')
             $('#query').focus()
             $('#query').width(($('#textbox').width() - $('#tags').width()) - 2);
@@ -112,6 +113,21 @@ $(window).on('load', () => {
 function returnPlaneText(type, name) {
     if(name == 'original') return;
     return `<a href="/search?q=${type}:${name}">${name}</a>`
+}
+
+function returnSearchTag(type, name) {
+    switch(type) {
+        case 'female':
+        case '여':
+            return `<a class="tag" gender="female" href="/search?q=여:${name}">${name} <a>X</a></a>`
+        
+        case 'male':
+        case '남': 
+            return `<a class="tag" gender="male" href="/search?q=남:${name}">${name} <a>X</a></a>`
+
+        default: 
+            return `<a class="tag" gender="other" href="/search?q=${type}:${name}">${name} <a>X</a></a>`
+    }
 }
 
 function returnTag(type, name) {

@@ -2,5 +2,8 @@
     "ext": "ejs js",
     "ignore": [
         "**/public/javascripts/*"
-    ]
+    ],
+    "env": {
+        "PORT":8001
+    }
 }
